@@ -43,10 +43,10 @@
 // For the following credentials, see examples/Authentications/SignInAsUser/EmailPassword/EmailPassword.ino
 
 /* 2. Define the API Key */
-#define API_KEY "AIzaSyAevqWIEvp3LruApovAREKFK04oOjhG7CM"//"AIzaSyBJkeTgiUT2fZHOCa6IKQXHpxGxyQpXYJU"
+#define API_KEY "AIzaSyAevqWIEvp3LruApovAREKFK04oOjhG7CM" //"AIzaSyBJkeTgiUT2fZHOCa6IKQXHpxGxyQpXYJU"
 
 /* 3. Define the RTDB URL */
-#define DATABASE_URL "https://esp32-47542-default-rtdb.europe-west1.firebasedatabase.app/"// "https://jjegarcia-esp32-default-rtdb.europe-west1.firebasedatabase.app/" 
+#define DATABASE_URL "https://esp32-47542-default-rtdb.europe-west1.firebasedatabase.app/" // "https://jjegarcia-esp32-default-rtdb.europe-west1.firebasedatabase.app/"
 
 /* 4. Define the user Email and password that alreadey registerd or added in your project */
 #define USER_EMAIL "jjegarcia.test@gmail.com"
@@ -143,8 +143,6 @@ void setup()
 
   config.timeout.serverResponse = 10 * 1000;
 
- 
-
   // You can use TCP KeepAlive in FirebaseData object and tracking the server connection status, please read this for detail.
   // https://github.com/mobizt/Firebase-ESP-Client#about-firebasedata-object
   // fbdo.keepAlive(5, 5, 1);
@@ -184,7 +182,6 @@ void loop()
 {
 
   //  Firebase.deleteUser(&config, &auth);
-   
 
   // Firebase.ready() should be called repeatedly to handle authentication tasks.
 
@@ -192,31 +189,21 @@ void loop()
   {
     sendDataPrevMillis = millis();
 
-    Serial.printf("Set bool... %s\n", Firebase.RTDB.setBool(&fbdo, F("/test/bool"), count % 2 == 0) ? "ok" : fbdo.errorReason().c_str());
-
-    Serial.printf("Get bool... %s\n", Firebase.RTDB.getBool(&fbdo, FPSTR("/test/bool")) ? fbdo.to<bool>() ? "true" : "false" : fbdo.errorReason().c_str());
+    saveBool("/test/bool",count %2 ==0);
 
     bool bVal;
     Serial.printf("Get bool ref... %s\n", Firebase.RTDB.getBool(&fbdo, F("/test/bool"), &bVal) ? bVal ? "true" : "false" : fbdo.errorReason().c_str());
 
-    Serial.printf("Set int... %s\n", Firebase.RTDB.setInt(&fbdo, F("/test/int"), count) ? "ok" : fbdo.errorReason().c_str());
-
-    Serial.printf("Get int... %s\n", Firebase.RTDB.getInt(&fbdo, F("/test/int")) ? String(fbdo.to<int>()).c_str() : fbdo.errorReason().c_str());
+    saveInt("/test/int",count);
 
     int iVal = 0;
     Serial.printf("Get int ref... %s\n", Firebase.RTDB.getInt(&fbdo, F("/test/int"), &iVal) ? String(iVal).c_str() : fbdo.errorReason().c_str());
 
-    Serial.printf("Set float... %s\n", Firebase.RTDB.setFloat(&fbdo, F("/test/float"), count + 10.2) ? "ok" : fbdo.errorReason().c_str());
+    saveFloat("/test/float",count + 10.2);
 
-    Serial.printf("Get float... %s\n", Firebase.RTDB.getFloat(&fbdo, F("/test/float")) ? String(fbdo.to<float>()).c_str() : fbdo.errorReason().c_str());
+    saveDouble("/test/double",count+35.178);
 
-    Serial.printf("Set double... %s\n", Firebase.RTDB.setDouble(&fbdo, F("/test/double"), count + 35.517549723765) ? "ok" : fbdo.errorReason().c_str());
-
-    Serial.printf("Get double... %s\n", Firebase.RTDB.getDouble(&fbdo, F("/test/double")) ? String(fbdo.to<double>()).c_str() : fbdo.errorReason().c_str());
-
-    Serial.printf("Set string... %s\n", Firebase.RTDB.setString(&fbdo, F("/test/string"), F("Hello World!")) ? "ok" : fbdo.errorReason().c_str());
-
-    Serial.printf("Get string... %s\n", Firebase.RTDB.getString(&fbdo, F("/test/string")) ? fbdo.to<const char *>() : fbdo.errorReason().c_str());
+    saveString("/test/string", "Hello World!");
 
     // For the usage of FirebaseJson, see examples/FirebaseJson/BasicUsage/Create_Edit_Parse.ino
     FirebaseJson json;
@@ -253,7 +240,41 @@ void loop()
 
     count++;
   }
-  
+}
+
+
+void saveBool(String path,bool value)
+{
+  Serial.printf("Set bool... %s\n", Firebase.RTDB.setBool(&fbdo,path,value) ? "ok" : fbdo.errorReason().c_str());
+
+  Serial.printf("Get bool... %s\n", Firebase.RTDB.getBool(&fbdo, path) ? fbdo.to<bool>() ? "true" : "false" : fbdo.errorReason().c_str());
+}
+
+void saveInt(String path,int value)
+{
+  Serial.printf("Set int... %s\n", Firebase.RTDB.setInt(&fbdo, path, value) ? "ok" : fbdo.errorReason().c_str());
+
+  Serial.printf("Get int... %s\n", Firebase.RTDB.getInt(&fbdo, path) ? String(fbdo.to<int>()).c_str() : fbdo.errorReason().c_str());
+}
+
+void saveFloat(String path,float value)
+{
+  Serial.printf("Set float... %s\n", Firebase.RTDB.setFloat(&fbdo, path, value) ? "ok" : fbdo.errorReason().c_str());
+
+  Serial.printf("Get float... %s\n", Firebase.RTDB.getFloat(&fbdo, path) ? String(fbdo.to<float>()).c_str() : fbdo.errorReason().c_str());
+}
+
+void saveDouble(String path, double value)
+{
+  Serial.printf("Set double... %s\n", Firebase.RTDB.setDouble(&fbdo, path, value) ? "ok" : fbdo.errorReason().c_str());
+
+  Serial.printf("Get double... %s\n", Firebase.RTDB.getDouble(&fbdo, path) ? String(fbdo.to<double>()).c_str() : fbdo.errorReason().c_str());
+}
+
+void saveString(String path, String value)
+{
+  Serial.printf("Set string... %s\n", Firebase.RTDB.setString(&fbdo, path, value) ? "ok" : fbdo.errorReason().c_str());
+  Serial.printf("Get string... %s\n", Firebase.RTDB.getString(&fbdo, path) ? fbdo.to<const char *>() : fbdo.errorReason().c_str());
 }
 
 /** NOTE:
