@@ -9,6 +9,7 @@
  * Copyright (c) 2023 mobizt
  *
  */
+#include <string>
 
 #include <Arduino.h>
 #if defined(ESP32) || defined(ARDUINO_RASPBERRY_PI_PICO_W)
@@ -71,16 +72,16 @@ enum _type
   _string
 };
 
-// typedef union
-// {
-//   void (*saveBool)(String path, bool value);
-//   void (*saveInt)(String path, int value);
-//   void (*saveDouble)(String path, double value);
-//   void (*saveFloat)(String path, float value);
-//   void (*saveString)(String path, char *value);
-// } functions;
+typedef union
+{
+  void (*saveBool)(String path, bool value);
+  void (*saveInt)(String path, int value);
+  void (*saveDouble)(String path, double value);
+  void (*saveFloat)(String path, float value);
+  void (*saveString)(String path, char *value);
+} functions;
 
-// functions my_functions;
+functions my_functions;
 
 void saveBool(String path, bool value);
 void saveInt(String path, int value);
@@ -94,7 +95,7 @@ WiFiMulti multi;
 
 void setup()
 {
- Serial.println("here");
+  Serial.println("here");
 
   Serial.begin(115200);
 
@@ -251,7 +252,7 @@ void saveDouble(String path, double value)
   Serial.printf("Get double... %s\n", Firebase.RTDB.getDouble(&fbdo, path) ? String(fbdo.to<double>()).c_str() : fbdo.errorReason().c_str());
 }
 
-void saveString(String path, String value)
+void saveString(String path, std::string value)
 {
   Serial.printf("Set string... %s\n", Firebase.RTDB.setString(&fbdo, path, value) ? "ok" : fbdo.errorReason().c_str());
   Serial.printf("Get string... %s\n", Firebase.RTDB.getString(&fbdo, path) ? fbdo.to<const char *>() : fbdo.errorReason().c_str());
@@ -264,11 +265,14 @@ void loop()
   if (Firebase.ready() && (millis() - sendDataPrevMillis > 15000 || sendDataPrevMillis == 0))
   {
     sendDataPrevMillis = millis();
-    saveBool("/test/bool/",true);
+    saveBool("/test/bool/", true);
     saveInt("/test/int/", 3 + count);
-    saveDouble("/test/double",count+0.33);
-    saveFloat("/test/float",count+ 0.003);
-    saveString("/test/string", "hello:"+ count);
+    saveDouble("/test/double", count + 0.33);
+    saveFloat("/test/float", count + 0.003);
+    // long test= 122;
+
+    std::string test= std::to_string(count);
+    saveString("/test/string", test);
     // saveValue(_boo, true);
     // saveValue(_int,3);
     // saveValue(_double,4.4);
