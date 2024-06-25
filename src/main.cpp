@@ -62,6 +62,32 @@ unsigned long sendDataPrevMillis = 0;
 
 unsigned long count = 0;
 
+enum _type
+{
+  _boo,
+  _int,
+  _double,
+  _float,
+  _string
+};
+
+typedef union
+{
+  void (*saveBool)(String path, bool value);
+  void (*saveInt)(String path, int value);
+  void (*saveDouble)(String path, double value);
+  void (*saveFloat)(String path, float value);
+  void (*saveString)(String path, char *value);
+} functions;
+
+functions my_functions;
+
+void saveBool(String path, bool value);
+void saveInt(String path, int value);
+void saveDouble(String path, double value);
+void saveFloat(String path, float value);
+void saveString(String path, String value);
+
 #if defined(ARDUINO_RASPBERRY_PI_PICO_W)
 WiFiMulti multi;
 #endif
@@ -178,33 +204,70 @@ void setup()
   */
 }
 
+template <typename T>
+void saveValue(_type path, T value)
+{
+  switch (path)
+  {
+    break;
+  case _boo:
+    return my_functions.saveBool("/test/bool", value);
+  case _int:
+    return my_functions.saveInt("/test/int", value);
+  case _double:
+    return my_functions.saveDouble("/test/double", value);
+  case _float:
+    return my_functions.saveFloat("/test/float", value);
+    // case _string:
+    //   return my_functions.saveString("/test/string", value);
+  }
+}
+void saveBool(String path, bool value)
+{
+  Serial.printf("Set bool... %s\n", Firebase.RTDB.setBool(&fbdo, path, value) ? "ok" : fbdo.errorReason().c_str());
+
+  Serial.printf("Get bool... %s\n", Firebase.RTDB.getBool(&fbdo, path) ? fbdo.to<bool>() ? "true" : "false" : fbdo.errorReason().c_str());
+}
+
+void saveInt(String path, int value)
+{
+  Serial.printf("Set int... %s\n", Firebase.RTDB.setInt(&fbdo, path, value) ? "ok" : fbdo.errorReason().c_str());
+
+  Serial.printf("Get int... %s\n", Firebase.RTDB.getInt(&fbdo, path) ? String(fbdo.to<int>()).c_str() : fbdo.errorReason().c_str());
+}
+
+void saveFloat(String path, float value)
+{
+  Serial.printf("Set float... %s\n", Firebase.RTDB.setFloat(&fbdo, path, value) ? "ok" : fbdo.errorReason().c_str());
+
+  Serial.printf("Get float... %s\n", Firebase.RTDB.getFloat(&fbdo, path) ? String(fbdo.to<float>()).c_str() : fbdo.errorReason().c_str());
+}
+
+void saveDouble(String path, double value)
+{
+  Serial.printf("Set double... %s\n", Firebase.RTDB.setDouble(&fbdo, path, value) ? "ok" : fbdo.errorReason().c_str());
+
+  Serial.printf("Get double... %s\n", Firebase.RTDB.getDouble(&fbdo, path) ? String(fbdo.to<double>()).c_str() : fbdo.errorReason().c_str());
+}
+
+void saveString(String path, String value)
+{
+  Serial.printf("Set string... %s\n", Firebase.RTDB.setString(&fbdo, path, value) ? "ok" : fbdo.errorReason().c_str());
+  Serial.printf("Get string... %s\n", Firebase.RTDB.getString(&fbdo, path) ? fbdo.to<const char *>() : fbdo.errorReason().c_str());
+}
+
 void loop()
 {
-
-  //  Firebase.deleteUser(&config, &auth);
-
   // Firebase.ready() should be called repeatedly to handle authentication tasks.
 
   if (Firebase.ready() && (millis() - sendDataPrevMillis > 15000 || sendDataPrevMillis == 0))
   {
     sendDataPrevMillis = millis();
-
-    saveBool("/test/bool",count %2 ==0);
-
-    bool bVal;
-    Serial.printf("Get bool ref... %s\n", Firebase.RTDB.getBool(&fbdo, F("/test/bool"), &bVal) ? bVal ? "true" : "false" : fbdo.errorReason().c_str());
-
-    saveInt("/test/int",count);
-
-    int iVal = 0;
-    Serial.printf("Get int ref... %s\n", Firebase.RTDB.getInt(&fbdo, F("/test/int"), &iVal) ? String(iVal).c_str() : fbdo.errorReason().c_str());
-
-    saveFloat("/test/float",count + 10.2);
-
-    saveDouble("/test/double",count+35.178);
-
-    saveString("/test/string", "Hello World!");
-
+    saveValue(_boo, true);
+    saveValue(_int,3);
+    saveValue(_double,4.4);
+    saveValue(_float,33.354);
+    saveString("/test/string", "stringy");
     // For the usage of FirebaseJson, see examples/FirebaseJson/BasicUsage/Create_Edit_Parse.ino
     FirebaseJson json;
 
@@ -241,98 +304,3 @@ void loop()
     count++;
   }
 }
-
-
-void saveBool(String path,bool value)
-{
-  Serial.printf("Set bool... %s\n", Firebase.RTDB.setBool(&fbdo,path,value) ? "ok" : fbdo.errorReason().c_str());
-
-  Serial.printf("Get bool... %s\n", Firebase.RTDB.getBool(&fbdo, path) ? fbdo.to<bool>() ? "true" : "false" : fbdo.errorReason().c_str());
-}
-
-void saveInt(String path,int value)
-{
-  Serial.printf("Set int... %s\n", Firebase.RTDB.setInt(&fbdo, path, value) ? "ok" : fbdo.errorReason().c_str());
-
-  Serial.printf("Get int... %s\n", Firebase.RTDB.getInt(&fbdo, path) ? String(fbdo.to<int>()).c_str() : fbdo.errorReason().c_str());
-}
-
-void saveFloat(String path,float value)
-{
-  Serial.printf("Set float... %s\n", Firebase.RTDB.setFloat(&fbdo, path, value) ? "ok" : fbdo.errorReason().c_str());
-
-  Serial.printf("Get float... %s\n", Firebase.RTDB.getFloat(&fbdo, path) ? String(fbdo.to<float>()).c_str() : fbdo.errorReason().c_str());
-}
-
-void saveDouble(String path, double value)
-{
-  Serial.printf("Set double... %s\n", Firebase.RTDB.setDouble(&fbdo, path, value) ? "ok" : fbdo.errorReason().c_str());
-
-  Serial.printf("Get double... %s\n", Firebase.RTDB.getDouble(&fbdo, path) ? String(fbdo.to<double>()).c_str() : fbdo.errorReason().c_str());
-}
-
-void saveString(String path, String value)
-{
-  Serial.printf("Set string... %s\n", Firebase.RTDB.setString(&fbdo, path, value) ? "ok" : fbdo.errorReason().c_str());
-  Serial.printf("Get string... %s\n", Firebase.RTDB.getString(&fbdo, path) ? fbdo.to<const char *>() : fbdo.errorReason().c_str());
-}
-
-/** NOTE:
- * When you trying to get boolean, integer and floating point number using getXXX from string, json
- * and array that stored on the database, the value will not set (unchanged) in the
- * FirebaseData object because of the request and data response type are mismatched.
- *
- * There is no error reported in this case, until you set this option to true
- * config.rtdb.data_type_stricted = true;
- *
- * In the case of unknown type of data to be retrieved, please use generic get function and cast its value to desired type like this
- *
- * Firebase.RTDB.get(&fbdo, "/path/to/node");
- *
- * float value = fbdo.to<float>();
- * String str = fbdo.to<String>();
- *
- */
-
-/// PLEASE AVOID THIS ////
-
-// Please avoid the following inappropriate and inefficient use cases
-/**
- *
- * 1. Call get repeatedly inside the loop without the appropriate timing for execution provided e.g. millis() or conditional checking,
- * where delay should be avoided.
- *
- * Everytime get was called, the request header need to be sent to server which its size depends on the authentication method used,
- * and costs your data usage.
- *
- * Please use stream function instead for this use case.
- *
- * 2. Using the single FirebaseData object to call different type functions as above example without the appropriate
- * timing for execution provided in the loop i.e., repeatedly switching call between get and set functions.
- *
- * In addition to costs the data usage, the delay will be involved as the session needs to be closed and opened too often
- * due to the HTTP method (GET, PUT, POST, PATCH and DELETE) was changed in the incoming request.
- *
- *
- * Please reduce the use of swithing calls by store the multiple values to the JSON object and store it once on the database.
- *
- * Or calling continuously "set" or "setAsync" functions without "get" called in between, and calling get continuously without set
- * called in between.
- *
- * If you needed to call arbitrary "get" and "set" based on condition or event, use another FirebaseData object to avoid the session
- * closing and reopening.
- *
- * 3. Use of delay or hidden delay or blocking operation to wait for hardware ready in the third party sensor libraries, together with stream functions e.g. Firebase.RTDB.readStream and fbdo.streamAvailable in the loop.
- *
- * Please use non-blocking mode of sensor libraries (if available) or use millis instead of delay in your code.
- *
- * 4. Blocking the token generation process.
- *
- * Let the authentication token generation to run without blocking, the following code MUST BE AVOIDED.
- *
- * while (!Firebase.ready()) <---- Don't do this in while loop
- * {
- *     delay(1000);
- * }
- *
- */
