@@ -63,31 +63,31 @@ unsigned long sendDataPrevMillis = 0;
 
 unsigned long count = 0;
 
-enum _type
-{
-  _boo,
-  _int,
-  _double,
-  _float,
-  _string
-};
+// enum _type
+// {
+//   _boo,
+//   _int,
+//   _double,
+//   _float,
+//   _string
+// };
 
-typedef union
-{
-  void (*saveBool)(String path, bool value);
-  void (*saveInt)(String path, int value);
-  void (*saveDouble)(String path, double value);
-  void (*saveFloat)(String path, float value);
-  void (*saveString)(String path, char *value);
-} functions;
+// typedef union
+// {
+//   void (*saveBool)(String path, bool value);
+//   void (*saveInt)(String path, int value);
+//   void (*saveDouble)(String path, double value);
+//   void (*saveFloat)(String path, float value);
+//   void (*saveString)(String path, std::string *value);
+// } functions;
 
-functions my_functions;
+// functions my_functions;
 
 void saveBool(String path, bool value);
 void saveInt(String path, int value);
 void saveDouble(String path, double value);
 void saveFloat(String path, float value);
-void saveString(String path, String value);
+void saveString(String path, std::string value);
 
 #if defined(ARDUINO_RASPBERRY_PI_PICO_W)
 WiFiMulti multi;
