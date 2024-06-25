@@ -71,16 +71,16 @@ enum _type
   _string
 };
 
-typedef union
-{
-  void (*saveBool)(String path, bool value);
-  void (*saveInt)(String path, int value);
-  void (*saveDouble)(String path, double value);
-  void (*saveFloat)(String path, float value);
-  void (*saveString)(String path, char *value);
-} functions;
+// typedef union
+// {
+//   void (*saveBool)(String path, bool value);
+//   void (*saveInt)(String path, int value);
+//   void (*saveDouble)(String path, double value);
+//   void (*saveFloat)(String path, float value);
+//   void (*saveString)(String path, char *value);
+// } functions;
 
-functions my_functions;
+// functions my_functions;
 
 void saveBool(String path, bool value);
 void saveInt(String path, int value);
@@ -94,6 +94,7 @@ WiFiMulti multi;
 
 void setup()
 {
+ Serial.println("here");
 
   Serial.begin(115200);
 
@@ -204,24 +205,24 @@ void setup()
   */
 }
 
-template <typename T>
-void saveValue(_type path, T value)
-{
-  switch (path)
-  {
-    break;
-  case _boo:
-    return my_functions.saveBool("/test/bool", value);
-  case _int:
-    return my_functions.saveInt("/test/int", value);
-  case _double:
-    return my_functions.saveDouble("/test/double", value);
-  case _float:
-    return my_functions.saveFloat("/test/float", value);
-    // case _string:
-    //   return my_functions.saveString("/test/string", value);
-  }
-}
+// template <typename T>
+// void saveValue(_type path, T value)
+// {
+//   switch (path)
+//   {
+//     break;
+//   case _boo:
+//     return my_functions.saveBool("/test/bool", value);
+//   case _int:
+//     return my_functions.saveInt("/test/int", value);
+//   case _double:
+//     return my_functions.saveDouble("/test/double", value);
+//   case _float:
+//     return my_functions.saveFloat("/test/float", value);
+//     // case _string:
+//     //   return my_functions.saveString("/test/string", value);
+//   }
+// }
 void saveBool(String path, bool value)
 {
   Serial.printf("Set bool... %s\n", Firebase.RTDB.setBool(&fbdo, path, value) ? "ok" : fbdo.errorReason().c_str());
@@ -263,11 +264,16 @@ void loop()
   if (Firebase.ready() && (millis() - sendDataPrevMillis > 15000 || sendDataPrevMillis == 0))
   {
     sendDataPrevMillis = millis();
-    saveValue(_boo, true);
-    saveValue(_int,3);
-    saveValue(_double,4.4);
-    saveValue(_float,33.354);
-    saveString("/test/string", "stringy");
+    saveBool("/test/bool/",true);
+    saveInt("/test/int/", 3 + count);
+    saveDouble("/test/double",count+0.33);
+    saveFloat("/test/float",count+ 0.003);
+    saveString("/test/string", "hello:"+ count);
+    // saveValue(_boo, true);
+    // saveValue(_int,3);
+    // saveValue(_double,4.4);
+    // saveValue(_float,33.354);
+    // saveString("/test/string", "stringy");
     // For the usage of FirebaseJson, see examples/FirebaseJson/BasicUsage/Create_Edit_Parse.ino
     FirebaseJson json;
 
